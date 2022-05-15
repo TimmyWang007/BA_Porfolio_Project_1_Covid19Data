@@ -1,0 +1,115 @@
+---
+title: "Google_Project_Cyclistic"
+output: html_document
+date: '2022-05-12'
+---
+
+
+## Use Cyclistic date to find the differences between the riding pattern of member and casual riders
+
+Data source: https://divvy-tripdata.s3.amazonaws.com/index.html
+```{r, warning=FALSE}
+library(rmarkdown)
+library(ggplot2)
+library(tidyverse)
+```
+
+### Import and merge data
+
+
+```{r, warning=FALSE}
+data05 <-read.csv("202105-divvy-tripdata.csv")
+```
+```{r, warning=FALSE}
+data06 <-read.csv("202106-divvy-tripdata.csv")
+```
+```{r, warning=FALSE}
+total <- rbind(data05, data06)
+head(total)
+```
+### generate ride_length data
+```{r, warning=FALSE}
+total$ride_length <- as.POSIXct(total$ended_at) - as.POSIXct(total$started_at)
+```
+```{r, warning=FALSE}
+member <- data.frame(filter(total, total$member_casual == 'member'))
+casual <- data.frame(filter(total, total$member_casual == 'casual'))
+```
+
+
+
+### Calculate mean for member and casual group
+```{r, warning=FALSE}
+member_mean = mean(member$ride_length)
+casual_mean = mean(casual$ride_length)
+member_mean
+casual_mean
+```
+
+### Vizualization for the mean
+```{r, warning=FALSE}
+dat <- data.frame(x=c(member_mean,casual_mean),y=c("member","casual"))
+```
+
+
+```{r, warning=FALSE}
+dat
+```
+
+
+```{r, warning=FALSE}
+ggplot(data = dat, aes(x= y,y = x))+ geom_col()+
+  labs(x ="type", y= "Avg_ride_time")
+```
+### From the plot, Casual riders tend to ride longer each time than members 
+
+### Next, Check the relationship between weekday and lengths of ride
+
+```{r, warning=FALSE}
+typeof(total$started_at)
+```
+
+```{r, warning=FALSE}
+total$isweekdays <-weekdays(as.Date(total$started_at))
+```
+
+
+```{r, warning=FALSE}
+typeof(total$isweekdays)
+```
+
+
+```{r, warning=FALSE}
+member <- data.frame(filter(total, total$member_casual == "member"))
+casual <- data.frame(filter(total, total$member_casual == "casual"))
+
+mean_member_week = group_by(member, isweekdays)%>%
+  summarise_each(funs(mean))
+mean_casual_week = group_by(casual, isweekdays)%>%
+  summarise_each(funs(mean))
+```
+```{r, warning=FALSE}
+mean_member_week
+mean_casual_week
+```
+### Creat vizualization
+```{r, warning=FALSE}
+mean_of_week <- rbind(mean_casual_week, mean_member_week)
+```
+```{r, warning=FALSE}
+ggplot(data = mean_casual_week, aes(x= isweekdays,y = ride_length))+ geom_col()+
+  labs( y= "Avg_ride_time_for casual")
+ggplot(data = mean_member_week, aes(x= isweekdays,y = ride_length))+ geom_col()+
+  labs( y= "Avg_ride_time_for member")
+```
+## plot shows that weekdays doesn't significantly effect the avg ride length
+
+```{r, warning=FALSE}
+ggplot(data = member, aes(x= isweekdays))+ geom_bar()
+ggplot(data = casual, aes(x= isweekdays))+ geom_bar()  
+
+
+```
+
+### for members, they ride averagely.While, casual riders ride much more frequent in weekends.
+
