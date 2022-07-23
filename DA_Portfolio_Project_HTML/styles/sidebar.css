@@ -1,0 +1,25 @@
+.side-bar{
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    top:55px;
+    background-color: white;
+    width: 72px;
+    z-index: 200;
+
+}
+.sidebar-link{
+    display: grid;
+    grid-template-rows: 50px 24px;
+    height: 76px;
+}
+.sidebar-link:hover{
+    background-color: rgb(235,235,235);
+    cursor: pointer;
+}
+.sidebar-text{
+    text-align: center;
+    font-family: Roboto, Arial;
+    font-size: 12px;
+    margin-top: -4px;
+}
